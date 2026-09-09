@@ -2,6 +2,7 @@ import { badges as dataset } from "@/data/badges";
 import { categories, presets, rules } from "@/data/rules";
 import { buildSchema, type Badge, type Build, type Category } from "./model";
 import { getEligibleBadgeTiers, explainTierEligibility } from "./eligibility";
+import { verifiedBadgeForHeight } from "@/data/verified";
 export type UpgradeRule = {
   id: string;
   label: string;
@@ -96,11 +97,12 @@ export function candidates(
 // Once the state cap is hit, use a deterministic beam; report approximation explicitly.
 export function optimize(
   input: Build,
-  data: Badge[] = dataset,
+  data: Badge[] | undefined = undefined,
   upgradeRules: readonly UpgradeRule[] = rules.upgrades,
 ): Solution {
   const started = performance.now();
   const build = buildSchema.parse(input);
+  data = data ?? verifiedBadgeForHeight(build.height);
   const r = build.resources;
   for (const [id, choice] of Object.entries(build.choices)) {
     if (choice.minimumTier !== undefined) {

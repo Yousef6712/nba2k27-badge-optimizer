@@ -31,7 +31,9 @@ test("delete confirmation and custom settings", async ({ page }) => {
   );
 });
 test("demo optimization, editing, saving and loading", async ({ page }) => {
-  await expect(page.getByText("DEMO DATA", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("MEASURED DATA / TUNING SNAPSHOT", { exact: false }),
+  ).toBeVisible();
   await page.getByRole("button", { name: "Load Demo Build" }).click();
   await page
     .getByRole("button", { name: "OPTIMIZE BADGES", exact: true })

@@ -106,6 +106,44 @@ export function BuildForm({
             })}
         </details>
       ))}
+      <h3>Cap breakers & synergy</h3>
+      <small>
+        Cap breakers raise attribute ceilings and do not create new tokens.
+        Reaction badges are paired with a Fuse badge and activate in-game.
+      </small>
+      <div className="fields">
+        {Object.entries(attributes).map(([key, [name]]) => (
+          <NumberField
+            key={key}
+            label={`${name} cap breakers`}
+            value={build.resources.capBreakers?.[key] ?? 0}
+            max={5}
+            onChange={(v) =>
+              update({
+                ...build,
+                resources: {
+                  ...build.resources,
+                  capBreakers: {
+                    ...(build.resources.capBreakers ?? {}),
+                    [key]: v,
+                  },
+                },
+              })
+            }
+          />
+        ))}
+        <NumberField
+          label="Reaction badges unlocked"
+          value={build.resources.reactionBadges ?? 0}
+          max={200}
+          onChange={(reactionBadges) =>
+            update({
+              ...build,
+              resources: { ...build.resources, reactionBadges },
+            })
+          }
+        />
+      </div>
       <h3>
         Badge resources{" "}
         <TooltipProvider>

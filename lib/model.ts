@@ -32,6 +32,10 @@ export const buildSchema = z.object({
     bonusSlots: count,
     bonusTokens: count,
     upgrades: z.record(z.string(), count),
+    capBreakers: z
+      .record(z.string(), z.number().int().min(0).max(5))
+      .optional(),
+    reactionBadges: count.optional(),
     categoryCaps: z
       .record(
         z
@@ -143,6 +147,8 @@ export function demoBuild(): Build {
       bonusSlots: 1,
       bonusTokens: 3,
       upgrades: { fuze1: 1, fuze2: 1 },
+      capBreakers: {},
+      reactionBadges: 0,
       categoryCaps: {},
     },
     preset: "Balanced",

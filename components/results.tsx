@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Shield, ArrowUpRight } from "lucide-react";
-import { badges } from "@/data/badges";
+import { verifiedBadgeForHeight } from "@/data/verified";
 import { rules, tierNames } from "@/data/rules";
 import type { Build } from "@/lib/model";
 import type { Recommendation } from "@/lib/optimizer";
@@ -22,6 +22,7 @@ export function Results({
   results: Recommendation[];
   build: Build;
 }) {
+  const badges = verifiedBadgeForHeight(build.height);
   const [selected, setSelected] = useState(0);
   const result = results[selected] ?? results[0];
   if (!result)

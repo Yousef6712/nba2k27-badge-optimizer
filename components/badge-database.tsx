@@ -1,12 +1,13 @@
 "use client";
 import { useState } from "react";
-import { badges } from "@/data/badges";
+import { verifiedBadgeForHeight, verifiedMetadata } from "@/data/verified";
 import { categories, positions, tierNames, attributes } from "@/data/rules";
 import type { Build } from "@/lib/model";
 import { getEligibleBadgeTiers } from "@/lib/eligibility";
 import { Choice } from "./controls";
 import { Tier } from "./results";
 export function BadgeDatabase({ build }: { build: Build }) {
+  const badges = verifiedBadgeForHeight(build.height);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All categories");
   const [tier, setTier] = useState("All tiers");
@@ -65,7 +66,10 @@ export function BadgeDatabase({ build }: { build: Build }) {
           onChange={setStatus}
         />
       </div>
-      <p>{list.length} badges · All included records are demo data</p>
+      <p>
+        {list.length} measured badges · captured {verifiedMetadata.captured} ·
+        live tuning can change values
+      </p>
       <div className="badge-grid">
         {list.map((b) => (
           <article className="panel" key={b.id}>

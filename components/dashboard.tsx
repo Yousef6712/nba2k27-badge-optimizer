@@ -251,8 +251,11 @@ export function Dashboard() {
             </TabsList>
           </nav>
           <div className="notice">
-            <strong>DEMO DATA</strong> · Sample badge requirements, costs,
-            values, and Fuze rules. Not verified NBA 2K27 game data.
+            <strong>MEASURED DATA / TUNING SNAPSHOT</strong> · Badge
+            requirements and height-specific token costs are loaded from a
+            public NBA 2K27 builder dataset captured 2026-08-22. Verify against
+            your live game before relying on results. Fuze and Reaction pairings
+            remain configurable.
           </div>
           {error && (
             <div className="error" role="alert">
