@@ -4,18 +4,29 @@ import { attributes, categories, positions, rules } from "@/data/rules";
 import type { Build } from "@/lib/model";
 import { Choice, NumberField } from "./controls";
 import { Slider } from "@/components/ui/slider";
+import { getAttributeCaps } from "@/data/caps";
+const builderCategories = [
+  "finishing",
+  "shooting",
+  "playmaking",
+  "defense",
+  "rebounding",
+  "physicals",
+];
 const categoryNames: Record<string, string> = {
   finishing: "Finishing",
   shooting: "Shooting",
   playmaking: "Playmaking",
-  defense: "Defense / Rebounding",
+  defense: "Defense",
+  rebounding: "Rebounding",
   physicals: "Physicals",
 };
 const categoryColors: Record<string, string> = {
   finishing: "#3b82f6",
   shooting: "#25c66f",
   playmaking: "#f59e0b",
-  defense: "#ef4444",
+  defense: "#ef3333",
+  rebounding: "#8b4de8",
   physicals: "#d1a514",
 };
 export function BuildForm({
@@ -27,6 +38,7 @@ export function BuildForm({
 }) {
   const setAttribute = (id: keyof Build["attributes"], value: number) =>
     update({ ...build, attributes: { ...build.attributes, [id]: value } });
+  const caps = getAttributeCaps(build);
   return (
     <section className="builder-card panel">
       <div className="builder-topline">
@@ -98,7 +110,7 @@ export function BuildForm({
         </span>
       </div>
       <div className="attribute-grid">
-        {categories.map((category) => (
+        {builderCategories.map((category) => (
           <div
             className="attribute-group"
             key={category}
@@ -114,24 +126,35 @@ export function BuildForm({
               <small>25–99</small>
             </div>
             {Object.entries(attributes)
-              .filter(([, v]) => v[1] === category)
+              .filter(
+                ([key, v]) =>
+                  v[1] === category &&
+                  ((category === "rebounding" &&
+                    ["offensiveRebound", "defensiveRebound"].includes(key)) ||
+                    (category === "defense" &&
+                      !["offensiveRebound", "defensiveRebound"].includes(
+                        key,
+                      )) ||
+                    !["defense", "rebounding"].includes(category)),
+              )
               .map(([key, [name]]) => {
                 const id = key as keyof Build["attributes"];
-                const value = build.attributes[id] ?? 25;
+                const cap = caps[id] ?? 99;
+                const value = Math.min(build.attributes[id] ?? 25, cap);
                 return (
                   <div className="attribute-row" key={id}>
                     <div className="attribute-label">
                       <span>{name}</span>
                       <b>
                         {Number.isFinite(value) ? value : 25}
-                        <em>/99</em>
+                        <em>/{cap}</em>
                       </b>
                     </div>
                     <Slider
                       aria-label={`${name} slider`}
                       value={[Number.isFinite(value) ? value : 25]}
                       min={25}
-                      max={99}
+                      max={cap}
                       onValueChange={(v) =>
                         setAttribute(id, Array.isArray(v) ? v[0] : v)
                       }
@@ -141,7 +164,7 @@ export function BuildForm({
                         label=""
                         value={value}
                         min={25}
-                        max={99}
+                        max={cap}
                         onChange={(v) => setAttribute(id, v)}
                       />
                     </div>
