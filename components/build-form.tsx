@@ -1,15 +1,23 @@
 "use client";
-import { SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal, RotateCcw } from "lucide-react";
 import { attributes, categories, positions, rules } from "@/data/rules";
 import type { Build } from "@/lib/model";
 import { Choice, NumberField } from "./controls";
 import { Slider } from "@/components/ui/slider";
-import {
-  Tooltip,
-  TooltipProvider,
-  TooltipTrigger,
-  TooltipContent,
-} from "@/components/ui/tooltip";
+const categoryNames: Record<string, string> = {
+  finishing: "Finishing",
+  shooting: "Shooting",
+  playmaking: "Playmaking",
+  defense: "Defense / Rebounding",
+  physicals: "Physicals",
+};
+const categoryColors: Record<string, string> = {
+  finishing: "#3b82f6",
+  shooting: "#25c66f",
+  playmaking: "#f59e0b",
+  defense: "#ef4444",
+  physicals: "#d1a514",
+};
 export function BuildForm({
   build,
   update,
@@ -17,20 +25,40 @@ export function BuildForm({
   build: Build;
   update: (b: Build) => void;
 }) {
+  const setAttribute = (id: keyof Build["attributes"], value: number) =>
+    update({ ...build, attributes: { ...build.attributes, [id]: value } });
   return (
-    <section className="panel">
-      <h2>
-        <SlidersHorizontal size={18} /> Your build
-      </h2>
-      <label>
-        Build name
-        <input
-          value={build.name}
-          maxLength={80}
-          onChange={(e) => update({ ...build, name: e.target.value })}
-        />
-      </label>
-      <div className="fields">
+    <section className="builder-card panel">
+      <div className="builder-topline">
+        <div>
+          <p className="eyebrow">MYPLAYER BUILDER · ATTRIBUTE EDITOR</p>
+          <h2>
+            <SlidersHorizontal size={18} /> Enter your build
+          </h2>
+        </div>
+        <button
+          className="compact-reset"
+          onClick={() =>
+            update({
+              ...build,
+              attributes: Object.fromEntries(
+                Object.keys(attributes).map((k) => [k, 25]),
+              ) as Build["attributes"],
+            })
+          }
+        >
+          <RotateCcw size={14} /> Reset attributes
+        </button>
+      </div>
+      <div className="build-identity">
+        <label>
+          Build name
+          <input
+            value={build.name}
+            maxLength={80}
+            onChange={(e) => update({ ...build, name: e.target.value })}
+          />
+        </label>
         <Choice
           label="Position"
           value={build.position}
@@ -61,121 +89,78 @@ export function BuildForm({
           onChange={(wingspan) => update({ ...build, wingspan })}
         />
       </div>
-      <h3>Attributes</h3>
-      {categories.map((category) => (
-        <details key={category} open={category === "shooting"}>
-          <summary className="capitalize">
-            {category === "defense" ? "Defense / Rebounding" : category}
-          </summary>
-          {Object.entries(attributes)
-            .filter(([, v]) => v[1] === category)
-            .map(([key, [name]]) => {
-              const id = key as keyof Build["attributes"];
-              const value = build.attributes[id];
-              return (
-                <div key={id}>
-                  <NumberField
-                    label={name}
-                    value={value}
-                    min={rules.attributeRange[0]}
-                    max={rules.attributeRange[1]}
-                    onChange={(v) =>
-                      update({
-                        ...build,
-                        attributes: { ...build.attributes, [id]: v },
-                      })
-                    }
-                  />
-                  <Slider
-                    aria-label={`${name} slider`}
-                    value={[Number.isFinite(value) ? value : 25]}
-                    min={25}
-                    max={99}
-                    onValueChange={(v) =>
-                      update({
-                        ...build,
-                        attributes: {
-                          ...build.attributes,
-                          [id]: Array.isArray(v) ? v[0] : v,
-                        },
-                      })
-                    }
-                  />
-                </div>
-              );
-            })}
-        </details>
-      ))}
-      <h3>Cap breakers & synergy</h3>
-      <small>
-        Cap breakers raise attribute ceilings and do not create new tokens.
-        Reaction badges are paired with a Fuse badge and activate in-game.
-      </small>
-      <div className="fields">
-        {Object.entries(attributes).map(([key, [name]]) => (
-          <NumberField
-            key={key}
-            label={`${name} cap breakers`}
-            value={build.resources.capBreakers?.[key] ?? 0}
-            max={5}
-            onChange={(v) =>
-              update({
-                ...build,
-                resources: {
-                  ...build.resources,
-                  capBreakers: {
-                    ...(build.resources.capBreakers ?? {}),
-                    [key]: v,
-                  },
-                },
-              })
-            }
-          />
-        ))}
-        <NumberField
-          label="Reaction badges unlocked"
-          value={build.resources.reactionBadges ?? 0}
-          max={200}
-          onChange={(reactionBadges) =>
-            update({
-              ...build,
-              resources: { ...build.resources, reactionBadges },
-            })
-          }
-        />
+      <div className="capbreaker-warning">
+        <strong>CAP BREAKER CHECK</strong>
+        <span>
+          Enter final attribute ratings after every cap breaker has been
+          applied. Cap breakers are not entered separately and do not create
+          extra badge tokens.
+        </span>
       </div>
-      <h3>
-        Badge resources{" "}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger
-              aria-label="How badge resources work"
-              className="px-2 py-0 ml-2"
-            >
-              ?
-            </TooltipTrigger>
-            <TooltipContent>
-              Demo rules spend regular pools first, then bonus pools. Fuze
-              upgrades raise one badge by one or two tiers at no extra token
-              cost.
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </h3>
-      <small>
-        Enter earned resources manually. Demo rules combine regular and bonus
-        pools.
-      </small>
-      <div className="fields">
+      <div className="attribute-grid">
+        {categories.map((category) => (
+          <div
+            className="attribute-group"
+            key={category}
+            style={
+              {
+                "--group-color": categoryColors[category],
+              } as React.CSSProperties
+            }
+          >
+            <div className="attribute-heading">
+              <span className="group-dot" />
+              {categoryNames[category]}
+              <small>25–99</small>
+            </div>
+            {Object.entries(attributes)
+              .filter(([, v]) => v[1] === category)
+              .map(([key, [name]]) => {
+                const id = key as keyof Build["attributes"];
+                const value = build.attributes[id] ?? 25;
+                return (
+                  <div className="attribute-row" key={id}>
+                    <div className="attribute-label">
+                      <span>{name}</span>
+                      <b>
+                        {Number.isFinite(value) ? value : 25}
+                        <em>/99</em>
+                      </b>
+                    </div>
+                    <Slider
+                      aria-label={`${name} slider`}
+                      value={[Number.isFinite(value) ? value : 25]}
+                      min={25}
+                      max={99}
+                      onValueChange={(v) =>
+                        setAttribute(id, Array.isArray(v) ? v[0] : v)
+                      }
+                    />
+                    <div className="attribute-input">
+                      <NumberField
+                        label=""
+                        value={value}
+                        min={25}
+                        max={99}
+                        onChange={(v) => setAttribute(id, v)}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
+        ))}
+      </div>
+      <div className="resource-strip">
+        <div>
+          <strong>Badge resources</strong>
+          <small>Manual inputs from your current loadout</small>
+        </div>
         {(["slots", "tokens", "bonusSlots", "bonusTokens"] as const).map(
           (key, i) => (
             <NumberField
               key={key}
-              label={
-                ["Badge slots", "Badge tokens", "Bonus slots", "Bonus tokens"][
-                  i
-                ]
-              }
+              label={["Slots", "Tokens", "Bonus slots", "Bonus tokens"][i]}
               value={build.resources[key]}
               onChange={(v) =>
                 update({
