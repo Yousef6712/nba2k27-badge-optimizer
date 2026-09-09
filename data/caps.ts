@@ -60,6 +60,14 @@ export function getAttributeCaps(
   const spanDelta = build.wingspan - 78;
   return Object.fromEntries(
     keys.map((key) => {
+      if (key === "strength") {
+        // Calibrated to the reference PG body in the supplied 2K27 builder shot:
+        // 6'4", 175 lb, 6'4" wingspan reaches 60 Strength.
+        const strengthCap =
+          60 - (build.height - 76) * 1.1 + (build.weight - 175) * 0.35 +
+          (build.wingspan - 76) * 0.5;
+        return [map[key], Math.max(25, Math.min(99, Math.round(strengthCap)))];
+      }
       let cap = sampleCaps[key] ?? 99;
       const h =
         key === "strength"
