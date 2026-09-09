@@ -44,6 +44,7 @@ export function BuildForm({
     inches: inches % 12,
   });
   const setFeetInches = (kind: "height" | "wingspan", feet: number, inches: number) => {
+    if (!Number.isFinite(feet) || !Number.isFinite(inches)) return;
     const total = feet * 12 + inches;
     const range = kind === "height" ? rules.heightRange : rules.wingspanRange;
     update({ ...build, [kind]: Math.max(range[0], Math.min(range[1], total)) });

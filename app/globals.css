@@ -467,7 +467,7 @@ nav [data-slot="tabs-list"] {
 }
 .build-identity {
   display: grid;
-  grid-template-columns: 1.4fr repeat(3, 1fr);
+  grid-template-columns: 1.05fr 1.25fr 1.05fr 1.25fr;
   gap: 10px;
   border-top: 1px solid #1a4146;
   border-bottom: 1px solid #1a4146;
@@ -493,6 +493,10 @@ nav [data-slot="tabs-list"] {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 6px;
+}
+.compound-inputs input {
+  width: 100%;
+  min-width: 0;
 }
 .compound-inputs label {
   display: grid;
