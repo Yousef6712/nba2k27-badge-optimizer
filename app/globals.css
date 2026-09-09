@@ -467,7 +467,7 @@ nav [data-slot="tabs-list"] {
 }
 .build-identity {
   display: grid;
-  grid-template-columns: 2fr repeat(4, 1fr);
+  grid-template-columns: 1.4fr repeat(3, 1fr);
   gap: 10px;
   border-top: 1px solid #1a4146;
   border-bottom: 1px solid #1a4146;
@@ -476,6 +476,29 @@ nav [data-slot="tabs-list"] {
 }
 .build-identity label {
   margin: 0;
+}
+.compound-field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.compound-field > span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.compound-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.compound-inputs label {
+  display: grid;
+  gap: 3px;
+  color: var(--muted);
+  font-size: 0.65rem;
 }
 .capbreaker-warning {
   display: flex;

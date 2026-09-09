@@ -9,8 +9,8 @@ const builderCategories = [
   "finishing",
   "shooting",
   "playmaking",
-  "defense",
   "rebounding",
+  "defense",
   "physicals",
 ];
 const categoryNames: Record<string, string> = {
@@ -39,6 +39,17 @@ export function BuildForm({
   const setAttribute = (id: keyof Build["attributes"], value: number) =>
     update({ ...build, attributes: { ...build.attributes, [id]: value } });
   const caps = getAttributeCaps(build);
+  const feetInches = (inches: number) => ({
+    feet: Math.floor(inches / 12),
+    inches: inches % 12,
+  });
+  const setFeetInches = (kind: "height" | "wingspan", feet: number, inches: number) => {
+    const total = feet * 12 + inches;
+    const range = kind === "height" ? rules.heightRange : rules.wingspanRange;
+    update({ ...build, [kind]: Math.max(range[0], Math.min(range[1], total)) });
+  };
+  const height = feetInches(build.height);
+  const wingspan = feetInches(build.wingspan);
   return (
     <section className="builder-card panel">
       <div className="builder-topline">
@@ -63,14 +74,6 @@ export function BuildForm({
         </button>
       </div>
       <div className="build-identity">
-        <label>
-          Build name
-          <input
-            value={build.name}
-            maxLength={80}
-            onChange={(e) => update({ ...build, name: e.target.value })}
-          />
-        </label>
         <Choice
           label="Position"
           value={build.position}
@@ -79,13 +82,13 @@ export function BuildForm({
             update({ ...build, position: position as Build["position"] })
           }
         />
-        <NumberField
-          label="Height (in)"
-          value={build.height}
-          min={rules.heightRange[0]}
-          max={rules.heightRange[1]}
-          onChange={(height) => update({ ...build, height })}
-        />
+        <div className="compound-field">
+          <span>Height</span>
+          <div className="compound-inputs">
+            <NumberField label="ft" value={height.feet} min={5} max={7} onChange={(v) => setFeetInches("height", v, height.inches)} />
+            <NumberField label="in" value={height.inches} min={0} max={11} onChange={(v) => setFeetInches("height", height.feet, v)} />
+          </div>
+        </div>
         <NumberField
           label="Weight (lb)"
           value={build.weight}
@@ -93,13 +96,13 @@ export function BuildForm({
           max={rules.weightRange[1]}
           onChange={(weight) => update({ ...build, weight })}
         />
-        <NumberField
-          label="Wingspan (in)"
-          value={build.wingspan}
-          min={rules.wingspanRange[0]}
-          max={rules.wingspanRange[1]}
-          onChange={(wingspan) => update({ ...build, wingspan })}
-        />
+        <div className="compound-field">
+          <span>Wingspan</span>
+          <div className="compound-inputs">
+            <NumberField label="ft" value={wingspan.feet} min={5} max={8} onChange={(v) => setFeetInches("wingspan", v, wingspan.inches)} />
+            <NumberField label="in" value={wingspan.inches} min={0} max={11} onChange={(v) => setFeetInches("wingspan", wingspan.feet, v)} />
+          </div>
+        </div>
       </div>
       <div className="capbreaker-warning">
         <strong>CAP BREAKER CHECK</strong>
