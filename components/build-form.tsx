@@ -1,6 +1,6 @@
 "use client";
 import { SlidersHorizontal, RotateCcw } from "lucide-react";
-import { attributes, categories, positions, rules } from "@/data/rules";
+import { attributes, positions, rules } from "@/data/rules";
 import type { Build } from "@/lib/model";
 import { Choice, NumberField } from "./controls";
 import { Slider } from "@/components/ui/slider";
@@ -127,15 +127,13 @@ export function BuildForm({
             </div>
             {Object.entries(attributes)
               .filter(
-                ([key, v]) =>
-                  v[1] === category &&
-                  ((category === "rebounding" &&
-                    ["offensiveRebound", "defensiveRebound"].includes(key)) ||
-                    (category === "defense" &&
-                      !["offensiveRebound", "defensiveRebound"].includes(
-                        key,
-                      )) ||
-                    !["defense", "rebounding"].includes(category)),
+                ([key, v]) => {
+                  const isRebound =
+                    key === "offensiveRebound" || key === "defensiveRebound";
+                  return category === "rebounding"
+                    ? isRebound
+                    : v[1] === category && (category !== "defense" || !isRebound);
+                },
               )
               .map(([key, [name]]) => {
                 const id = key as keyof Build["attributes"];

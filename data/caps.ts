@@ -1,7 +1,7 @@
-import sample from "./verified-attributes.json";
+import sample from "./verified-attribute-caps.json";
 import type { Build } from "@/lib/model";
 const sampleCaps: Record<string, number> = Object.fromEntries(
-  (sample as { data: Array<{ name: string; cap: number }> }).data.map((x) => [
+  (sample as unknown as { data: Array<{ name: string; cap: number }> }).data.map((x) => [
     x.name,
     x.cap,
   ]),
